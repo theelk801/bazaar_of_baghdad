@@ -1,15 +1,15 @@
-import functools
+from functools import lru_cache
 from math import factorial as fac
 
 
-@functools.lru_cache(maxsize=None)
+@lru_cache(maxsize=None)
 def bino(a, b):
     if b > a:
         return 0
     return fac(a) // (fac(a - b) * fac(b))
 
 
-@functools.lru_cache(maxsize=None)
+@lru_cache(maxsize=None)
 def hypogeo(N1, n1, N2, n2, N3, n3):
     numerator = bino(N1, n1) * bino(N2, n2) * bino(N3, n3)
     denominator = bino(N1 + N2 + N3, n1 + n2 + n3)
@@ -31,7 +31,7 @@ def powder_gen(powders_in_hand, other_in_hand, to_put_under):
                 yield i, j
 
 
-@functools.lru_cache(maxsize=None)
+@lru_cache(maxsize=None)
 def prob_of_keep(bazaars_in_hand, bazaars_in_deck, powders_in_hand, powders_in_deck, other_in_hand, other_in_deck,
                  powders_on_bottom=0, other_on_bottom=0, mull_count=0):
     # make sure that we're never trying to draw from a library which is too small
