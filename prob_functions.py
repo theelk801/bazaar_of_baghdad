@@ -23,4 +23,11 @@ def hand_gen(bazaars, powders, other, hand_size=7):
                 if i + j + k == hand_size:
                     yield i, j, k
 
+
+def powder_gen(powders_in_hand, other_in_hand, to_put_under):
+    for i in range(powders_in_hand):
+        for j in range(other_in_hand + 1):
+            if i + j == to_put_under:
+                yield i, j
+
 #     return max(regular_mull(powders, other), powder_mull(powders, other))
