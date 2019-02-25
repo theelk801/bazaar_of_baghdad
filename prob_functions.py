@@ -75,3 +75,36 @@ def prob_of_good_hand(bazaars=4, powders=4, other=52):
         prob *= prob_of_keep(i, j, k, bazaars, powders, other)
         total += prob
     return total
+
+
+def advice_string(key):
+    if key == 'regular':
+        print('Take a regular mulligan.')
+        return
+    a, b = key
+    print(f'Put {a} Serum Powder and {b} other card' + ('s' if b != 1 else '') + ' on the bottom.')
+
+
+def action_to_take(powders_in_hand, other_in_hand, powders_in_deck, other_in_deck, mull_count):
+    mull_dict = dict()
+    regular_mull = 0
+    for i, j, k in hand_gen(4, powders_in_deck, other_in_deck):
+        prob = hypogeo(4, i, powders_in_deck, j, other_in_deck, k)
+        # print(prob)
+        prob *= prob_of_keep(i, j, k, 4, powders_in_deck, other_in_deck, mull_count + 1)
+        # print(prob)
+        regular_mull += prob
+    mull_dict['regular'] = regular_mull
+
+    for powders_on_bottom, other_on_bottom in powder_gen(powders_in_hand, other_in_hand, mull_count):
+        powders_left = powders_in_deck - powders_in_hand + powders_on_bottom
+        other_left = other_in_deck - other_in_hand + other_on_bottom
+        powder_mull = 0
+        for i, j, k in hand_gen(4, powders_left, other_left):
+            prob = hypogeo(4, i, powders_left, j, other_left, k)
+            prob *= prob_of_keep(i, j, k, 4, powders_left, other_left, mull_count)
+            powder_mull += prob
+        mull_dict[(powders_on_bottom, other_on_bottom)] = powder_mull
+
+    m = max(mull_dict.keys(), key=lambda x: mull_dict[x])
+    print(advice_string(m))
