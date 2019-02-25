@@ -34,6 +34,10 @@ def powder_gen(powders_in_hand, other_in_hand, to_put_under):
 @functools.lru_cache(maxsize=None)
 def prob_of_keep(bazaars_in_hand, bazaars_in_deck, powders_in_hand, powders_in_deck, other_in_hand, other_in_deck,
                  powders_on_bottom=0, other_on_bottom=0, mull_count=0):
+    # make sure that we're never trying to draw from a library which is too small
+    if bazaars_in_deck + powders_in_deck + other_in_deck < 7:
+        raise Exception('Not enough cards in library')
+
     # start with easy pass/fails
     if bazaars_in_hand > 0:
         return 1.0
@@ -43,7 +47,9 @@ def prob_of_keep(bazaars_in_hand, bazaars_in_deck, powders_in_hand, powders_in_d
     # start with regular mulligan odds
     regular_mull = 0
     for i, j, k in hand_gen(bazaars_in_deck, powders_in_deck + powders_on_bottom, other_in_deck + other_on_bottom):
+        # find probability of hand being drawn
         prob = hypogeo(bazaars_in_deck, i, powders_in_deck + powders_on_bottom, j, other_in_deck + other_on_bottom, k)
+        # multiply by probability of hand leading to a keep
         prob *= prob_of_keep(i, bazaars_in_deck, j, powders_in_deck + powders_on_bottom, k,
                              other_in_deck + other_on_bottom, mull_count=mull_count + 1)
         regular_mull += prob
@@ -54,6 +60,8 @@ def prob_of_keep(bazaars_in_hand, bazaars_in_deck, powders_in_hand, powders_in_d
 
     # create list of all possible outcomes
     all_mulls = [regular_mull]
+
+    # iterate over all possible ways to put cards on the bottom
     for powders_to_bottom, other_to_bottom in powder_gen(powders_in_hand, other_in_hand, mull_count):
         powders_left = powders_in_deck - powders_in_hand
         other_left = other_in_deck - other_in_hand
