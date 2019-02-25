@@ -30,4 +30,48 @@ def powder_gen(powders_in_hand, other_in_hand, to_put_under):
             if i + j == to_put_under:
                 yield i, j
 
-#     return max(regular_mull(powders, other), powder_mull(powders, other))
+
+@functools.lru_cache(maxsize=None)
+def prob_of_keep(bazaars_in_hand, powders_in_hand, other_in_hand, bazaars_in_deck, powders_in_deck, other_in_deck,
+                 mull_count=0):
+    if bazaars_in_hand > 0:
+        return 1.0
+    if mull_count > 5:
+        return 0.0
+
+    # start with regular mulligan odds
+    regular_mull = 0
+    for i, j, k in hand_gen(bazaars_in_deck, powders_in_deck, other_in_deck):
+        prob = hypogeo(bazaars_in_deck, i, powders_in_deck, j, other_in_deck, k)
+        # print(prob)
+        prob *= prob_of_keep(i, j, k, bazaars_in_deck, powders_in_deck, other_in_deck, mull_count + 1)
+        # print(prob)
+        regular_mull += prob
+
+    # if serum powder not in hand, or probability is already 1, we can stop
+    if powders_in_hand == 0 or regular_mull == 1.0:
+        return regular_mull
+
+    # create list of all possible outcomes
+    all_mulls = [regular_mull]
+    for powders_on_bottom, other_on_bottom in powder_gen(powders_in_hand, other_in_hand, mull_count):
+        powders_left = powders_in_deck - powders_in_hand + powders_on_bottom
+        other_left = other_in_deck - other_in_hand + other_on_bottom
+        powder_mull = 0
+        for i, j, k in hand_gen(bazaars_in_deck, powders_left, other_left):
+            prob = hypogeo(bazaars_in_deck, i, powders_left, j, other_left, k)
+            prob *= prob_of_keep(i, j, k, bazaars_in_deck, powders_left, other_left, mull_count)
+            powder_mull += prob
+        if powder_mull == 1.0:
+            return 1.0
+        all_mulls.append(powder_mull)
+    return max(all_mulls)
+
+
+def prob_of_good_hand(bazaars=4, powders=4, other=52):
+    total = 0
+    for i, j, k in hand_gen(bazaars, powders, other):
+        prob = hypogeo(bazaars, i, powders, j, other, k)
+        prob *= prob_of_keep(i, j, k, bazaars, powders, other)
+        total += prob
+    return total
