@@ -32,7 +32,7 @@ def powder_gen(powders_in_hand, other_in_hand, to_put_under):
 
 
 @functools.lru_cache(maxsize=None)
-def prob_of_keep(bazaars_in_hand, powders_in_hand, other_in_hand, bazaars_in_deck, powders_in_deck, other_in_deck,
+def prob_of_keep(bazaars_in_hand, bazaars_in_deck, powders_in_hand, powders_in_deck, other_in_hand, other_in_deck,
                  mull_count=0):
     if bazaars_in_hand > 0:
         return 1.0
@@ -44,7 +44,7 @@ def prob_of_keep(bazaars_in_hand, powders_in_hand, other_in_hand, bazaars_in_dec
     for i, j, k in hand_gen(bazaars_in_deck, powders_in_deck, other_in_deck):
         prob = hypogeo(bazaars_in_deck, i, powders_in_deck, j, other_in_deck, k)
         # print(prob)
-        prob *= prob_of_keep(i, j, k, bazaars_in_deck, powders_in_deck, other_in_deck, mull_count + 1)
+        prob *= prob_of_keep(i, bazaars_in_deck, j, powders_in_deck, k, other_in_deck, mull_count + 1)
         # print(prob)
         regular_mull += prob
 
@@ -54,13 +54,13 @@ def prob_of_keep(bazaars_in_hand, powders_in_hand, other_in_hand, bazaars_in_dec
 
     # create list of all possible outcomes
     all_mulls = [regular_mull]
-    for powders_on_bottom, other_on_bottom in powder_gen(powders_in_hand, other_in_hand, mull_count):
-        powders_left = powders_in_deck - powders_in_hand + powders_on_bottom
-        other_left = other_in_deck - other_in_hand + other_on_bottom
+    for powders_to_bottom, other_to_bottom in powder_gen(powders_in_hand, other_in_hand, mull_count):
+        powders_left = powders_in_deck - powders_in_hand + powders_to_bottom
+        other_left = other_in_deck - other_in_hand + other_to_bottom
         powder_mull = 0
         for i, j, k in hand_gen(bazaars_in_deck, powders_left, other_left):
             prob = hypogeo(bazaars_in_deck, i, powders_left, j, other_left, k)
-            prob *= prob_of_keep(i, j, k, bazaars_in_deck, powders_left, other_left, mull_count)
+            prob *= prob_of_keep(i, bazaars_in_deck, j, powders_left, k, other_left, mull_count)
             powder_mull += prob
         if powder_mull == 1.0:
             return 1.0
@@ -72,7 +72,7 @@ def prob_of_good_hand(bazaars=4, powders=4, other=52):
     total = 0
     for i, j, k in hand_gen(bazaars, powders, other):
         prob = hypogeo(bazaars, i, powders, j, other, k)
-        prob *= prob_of_keep(i, j, k, bazaars, powders, other)
+        prob *= prob_of_keep(i, bazaars, j, powders, k, other)
         total += prob
     return total
 
@@ -91,20 +91,20 @@ def action_to_take(powders_in_hand, other_in_hand, powders_in_deck, other_in_dec
     for i, j, k in hand_gen(4, powders_in_deck, other_in_deck):
         prob = hypogeo(4, i, powders_in_deck, j, other_in_deck, k)
         # print(prob)
-        prob *= prob_of_keep(i, j, k, 4, powders_in_deck, other_in_deck, mull_count + 1)
+        prob *= prob_of_keep(i, 4, j, powders_in_deck, k, other_in_deck, mull_count + 1)
         # print(prob)
         regular_mull += prob
     mull_dict['regular'] = regular_mull
 
-    for powders_on_bottom, other_on_bottom in powder_gen(powders_in_hand, other_in_hand, mull_count):
-        powders_left = powders_in_deck - powders_in_hand + powders_on_bottom
-        other_left = other_in_deck - other_in_hand + other_on_bottom
+    for powders_to_bottom, other_to_bottom in powder_gen(powders_in_hand, other_in_hand, mull_count):
+        powders_left = powders_in_deck - powders_in_hand + powders_to_bottom
+        other_left = other_in_deck - other_in_hand + other_to_bottom
         powder_mull = 0
         for i, j, k in hand_gen(4, powders_left, other_left):
             prob = hypogeo(4, i, powders_left, j, other_left, k)
-            prob *= prob_of_keep(i, j, k, 4, powders_left, other_left, mull_count)
+            prob *= prob_of_keep(i, 4, j, powders_left, k, other_left, mull_count)
             powder_mull += prob
-        mull_dict[(powders_on_bottom, other_on_bottom)] = powder_mull
+        mull_dict[(powders_to_bottom, other_to_bottom)] = powder_mull
 
     m = max(mull_dict.keys(), key=lambda x: mull_dict[x])
     print(advice_string(m))
