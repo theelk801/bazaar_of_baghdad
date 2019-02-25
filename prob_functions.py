@@ -17,9 +17,10 @@ def hypogeo(N1, n1, N2, n2, N3, n3):
 
 
 def hand_gen(bazaars, powders, other, hand_size=7):
-    for i in range(bazaars):
-        for j in range(powders):
-            for k in range(other):
+    for i in range(bazaars + 1):
+        for j in range(powders + 1):
+            for k in range(other + 1):
                 if i + j + k == hand_size:
                     yield i, j, k
 
+#     return max(regular_mull(powders, other), powder_mull(powders, other))
