@@ -65,7 +65,7 @@ def prob_of_keep(bazaars_in_hand,
     # start with easy pass/fails
     if bazaars_in_hand > 0:
         return 1.0
-    if mull_count > 5:
+    if mull_count > 6:
         return 0.0
 
     # start with regular mulligan odds
@@ -101,7 +101,7 @@ def prob_of_keep(bazaars_in_hand,
         other_left = other_in_deck - other_in_hand
         powder_mull = 0
         for i, j, k in hand_gen(bazaars_in_deck, powders_left, other_left,
-                                6 - mull_count):
+                                7 - mull_count):
             prob = hypogeo(bazaars_in_deck, i, powders_left, j, other_left, k)
             prob *= prob_of_keep(i, bazaars_in_deck, j, powders_left, k,
                                  other_left,
@@ -171,7 +171,7 @@ def action_to_take(powders_in_hand,
         powders_left = powders_in_deck - powders_in_hand
         other_left = other_in_deck - other_in_hand
         powder_mull = 0
-        for i, j, k in hand_gen(4, powders_left, other_left, 6 - mull_count):
+        for i, j, k in hand_gen(4, powders_left, other_left, 7 - mull_count):
             prob = hypogeo(4, i, powders_left, j, other_left, k)
             prob *= prob_of_keep(i, 4, j, powders_left, k, other_left,
                                  powders_on_bottom + powders_to_bottom,
