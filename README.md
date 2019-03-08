@@ -16,7 +16,7 @@ The approach is therefore as follows: To determine the probability of a hand hav
 The function `prob_of_good_hand` computes the overall probability of having a Bazaar in one's opening hand given correct mulligan decisions, and the function `action_to_take` provides the appropriate action to take given information about what is in the player's hand. Additionally, there is a script `decider.py` which provides a questionnaire for mulligan decisions.
 
 ## Results
-Using the code, we see that a player has a roughly 99.05% chance of having a Bazaar of Baghdad in their opening hand.
+Using the code, we see that a player has a roughly 99.573% chance of having a Bazaar of Baghdad in their opening hand.
 
 ## Collaboration
 If you find any errors or have any questions, please do not hesitate to contact me or open an issue or pull request.
