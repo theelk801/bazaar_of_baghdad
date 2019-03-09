@@ -180,4 +180,4 @@ def action_to_take(powders_in_hand,
         mull_dict[(powders_to_bottom, other_to_bottom)] = powder_mull
 
     best_action = max(mull_dict.keys(), key=mull_dict.get)
-    print(advice_string(best_action, mull_count))
+    return best_action
